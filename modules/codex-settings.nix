@@ -63,7 +63,9 @@ in
           shellHook = ''
             mkdir -p .codex
             if ! diff -q <(cat .codex/config.toml 2>/dev/null) ${cfg.settingsFile} &>/dev/null; then
-              cp ${cfg.settingsFile} .codex/config.toml
+              cp ${cfg.settingsFile} .codex/config.toml.tmp
+              chmod 644 .codex/config.toml.tmp
+              mv .codex/config.toml.tmp .codex/config.toml
               echo "codexnix: updated .codex/config.toml"
             fi
           '';
