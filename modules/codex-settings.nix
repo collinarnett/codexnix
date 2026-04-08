@@ -50,6 +50,15 @@ in
             description = "Derivation producing the Codex config.toml file.";
           };
 
+          addGcRoot = mkOption {
+            type = types.bool;
+            default = false;
+            description = ''
+              Whether to add `.codex/config.toml` as an indirect garbage collector root.
+              When false, the shell hook creates a symlink to the generated file instead.
+            '';
+          };
+
           shellHook = mkOption {
             type = types.str;
             readOnly = true;
@@ -63,9 +72,12 @@ in
           shellHook = ''
             mkdir -p .codex
             if ! diff -q <(cat .codex/config.toml 2>/dev/null) ${cfg.settingsFile} &>/dev/null; then
-              cp ${cfg.settingsFile} .codex/config.toml.tmp
-              chmod 644 .codex/config.toml.tmp
-              mv .codex/config.toml.tmp .codex/config.toml
+              ${
+                if cfg.addGcRoot then
+                  "nix-store --add-root .codex/config.toml --indirect --realise ${cfg.settingsFile}"
+                else
+                  "ln -sf ${cfg.settingsFile} .codex/config.toml"
+              }
               echo "codexnix: updated .codex/config.toml"
             fi
           '';
