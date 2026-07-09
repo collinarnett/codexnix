@@ -70,16 +70,23 @@ in
           settingsFile = tomlFormat.generate "config.toml" cleanSettings;
 
           shellHook = ''
-            mkdir -p .codex
-            if ! diff -q <(cat .codex/config.toml 2>/dev/null) ${cfg.settingsFile} &>/dev/null; then
+            # Anchor to the repository root so the config lands in the same place
+            # regardless of which subdirectory the dev shell is entered from.
+            codexHome="$(git rev-parse --show-toplevel)/.codex"
+            mkdir -p "$codexHome"
+            if ! diff -q <(cat "$codexHome/config.toml" 2>/dev/null) ${cfg.settingsFile} &>/dev/null; then
               ${
                 if cfg.addGcRoot then
-                  "nix-store --add-root .codex/config.toml --indirect --realise ${cfg.settingsFile}"
+                  ''nix-store --add-root "$codexHome/config.toml" --indirect --realise ${cfg.settingsFile}''
                 else
-                  "ln -sf ${cfg.settingsFile} .codex/config.toml"
+                  ''ln -sf ${cfg.settingsFile} "$codexHome/config.toml"''
               }
               echo "codexnix: updated .codex/config.toml"
             fi
+
+            # The codex CLI resolves its config from $CODEX_HOME (default ~/.codex);
+            # point it at the project's .codex so the generated config is the one used.
+            export CODEX_HOME="$codexHome"
           '';
         };
       }
