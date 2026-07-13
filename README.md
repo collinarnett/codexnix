@@ -51,7 +51,28 @@ sandbox_mode = "platform-default"
 |---|---|---|
 | `codex.settings` | submodule | All Codex CLI settings as typed Nix options |
 | `codex.settingsFile` | package (read-only) | Derivation producing `config.toml` |
+| `codex.addGcRoot` | bool (default `false`) | Pin `.codex/config.toml` as an indirect GC root instead of a plain symlink |
+| `codex.trustProjectRoot` | bool (default `false`) | Mark the checkout as a trusted Codex project (see below) |
 | `codex.shellHook` | string (read-only) | Shell snippet that writes `.codex/config.toml` |
+
+## Trusting the project root
+
+Codex records per-project trust by writing a `[projects."<root>"]` table into
+`$CODEX_HOME/config.toml` at runtime. Because codexnix points `CODEX_HOME` at the
+repo's `.codex` and links `config.toml` to a read-only store path, that write
+fails with `failed to set trust setting`.
+
+Set `codex.trustProjectRoot = true` to have the shell hook materialize a writable
+`config.toml` (the generated settings plus a trust entry for the repo root). The
+root is resolved at shell-entry via `git rev-parse`, so nothing checkout-specific
+is committed and each clone trusts its own location:
+
+```nix
+perSystem = { config, ... }: {
+  codex.trustProjectRoot = true;
+  codex.settings.approval_policy = "on-request";
+};
+```
 
 ## Regenerating options
 

@@ -23,12 +23,46 @@
       perSystem =
         { config, pkgs, ... }:
         {
+          codex.trustProjectRoot = true;
           codex.settings = {
             model = "o4-mini";
             approval_policy = "unless-allow-listed";
             developer_instructions = "Be concise";
             sandbox_mode = "platform-default";
           };
+
+          # Run the shell hook inside a throwaway git repo and assert it produces
+          # a writable config.toml carrying both the generated settings and a
+          # trust entry keyed on the resolved repo root.
+          checks.trust-shellhook = pkgs.runCommand "check-trust-shellhook" { nativeBuildInputs = [ pkgs.git ]; } ''
+            export HOME="$TMPDIR"
+            mkdir -p "$TMPDIR/repo"
+            cd "$TMPDIR/repo"
+            git init -q
+
+            ${config.codex.shellHook}
+
+            echo "=== Materialized config.toml ==="
+            cat "$CODEX_HOME/config.toml"
+
+            # A writable regular file, not a read-only store symlink.
+            test -f "$CODEX_HOME/config.toml"
+            test ! -L "$CODEX_HOME/config.toml"
+            test -w "$CODEX_HOME/config.toml"
+
+            # Generated settings survive alongside the trust entry.
+            grep -q 'model = "o4-mini"' "$CODEX_HOME/config.toml"
+            grep -q 'trust_level = "trusted"' "$CODEX_HOME/config.toml"
+            grep -qF "[projects.\"$(git rev-parse --show-toplevel)\"]" "$CODEX_HOME/config.toml"
+
+            # Idempotent: a second entry leaves the file unchanged.
+            cp "$CODEX_HOME/config.toml" "$TMPDIR/first"
+            ${config.codex.shellHook}
+            diff -q "$TMPDIR/first" "$CODEX_HOME/config.toml"
+
+            echo "Trust shell hook checks passed"
+            touch $out
+          '';
 
           checks.settings-content = pkgs.runCommand "check-settings" { } ''
             echo "=== Generated config.toml ==="
