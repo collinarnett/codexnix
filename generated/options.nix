@@ -31,10 +31,20 @@
       default = null;
       description = "Settings for app-specific controls.";
     };
+    apps_mcp_product_sku = lib.mkOption {
+      type = lib.types.nullOr (lib.types.str);
+      default = null;
+      description = "Optional product SKU forwarded on host-owned Codex Apps MCP requests.";
+    };
     audio = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
       description = "Machine-local realtime audio device preferences used by realtime voice.";
+    };
+    auto_review = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Optional policy instructions for the guardian auto-reviewer.";
     };
     background_terminal_max_timeout = lib.mkOption {
       type = lib.types.nullOr (lib.types.int);
@@ -56,20 +66,25 @@
       default = null;
       description = "Preferred backend for storing CLI auth credentials. file (default): Use a file in the Codex home directory. keyring: Use an OS-specific keyring service. auto: Use the keyring if available, otherwise use a file.";
     };
-    commit_attribution = lib.mkOption {
-      type = lib.types.nullOr (lib.types.str);
-      default = null;
-      description = "Optional commit attribution text for commit message co-author trailers.\n\nSet to an empty string to disable automatic commit attribution.";
-    };
     compact_prompt = lib.mkOption {
       type = lib.types.nullOr (lib.types.str);
       default = null;
       description = "Compact prompt used for history compaction.";
     };
+    debug = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Debugging and reproducibility settings.";
+    };
     default_permissions = lib.mkOption {
       type = lib.types.nullOr (lib.types.str);
       default = null;
-      description = "Default named permissions profile to apply from the `[permissions]` table.";
+      description = "Default permissions profile to apply. Names starting with `:` refer to built-in profiles; other names are resolved from the `[permissions]` table.";
+    };
+    desktop = lib.mkOption {
+      type = lib.types.nullOr (lib.types.attrsOf (lib.types.anything));
+      default = null;
+      description = "Opaque desktop settings stored alongside the rest of config.toml.";
     };
     developer_instructions = lib.mkOption {
       type = lib.types.nullOr (lib.types.str);
@@ -89,6 +104,11 @@
       type = lib.types.nullOr (lib.types.str);
       default = null;
       description = "Experimental / do not use. Replaces the built-in realtime start instructions inserted into developer messages when realtime becomes active.";
+    };
+    experimental_realtime_webrtc_call_base_url = lib.mkOption {
+      type = lib.types.nullOr (lib.types.str);
+      default = null;
+      description = "Experimental / do not use. Overrides only the WebRTC realtime call creation base URL. This is separate from `experimental_realtime_ws_base_url` because WebRTC call creation is HTTP, while sideband control is websocket.";
     };
     experimental_realtime_ws_backend_prompt = lib.mkOption {
       type = lib.types.nullOr (lib.types.str);
@@ -110,9 +130,15 @@
       default = null;
       description = "Experimental / do not use. Replaces the synthesized realtime startup context appended to websocket session instructions. An empty string disables startup context injection entirely.";
     };
-    experimental_use_freeform_apply_patch = lib.mkOption {
-      type = lib.types.nullOr (lib.types.bool);
+    experimental_thread_config_endpoint = lib.mkOption {
+      type = lib.types.nullOr (lib.types.str);
       default = null;
+      description = "Experimental / do not use. When set, app-server fetches thread-scoped config from a remote service at this endpoint.";
+    };
+    experimental_thread_store = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Experimental / do not use. Selects the thread store implementation.";
     };
     experimental_use_unified_exec_tool = lib.mkOption {
       type = lib.types.nullOr (lib.types.bool);
@@ -125,12 +151,37 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
-          apps = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
-          child_agents_md = lib.mkOption {
+          apply_patch_streaming_events = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
-          code_mode = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          apps = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          apps_mcp_path_override = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
+          auth_elicitation = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          browser_use = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          browser_use_external = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          browser_use_full_cdp_access = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          chronicle = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          code_mode = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
+          code_mode_host = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           code_mode_only = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -145,12 +196,21 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
-          connectors = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
-          debug_hide_spawn_agent_metadata = lib.mkOption {
+          computer_use = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          concurrent_reasoning_summaries = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          connectors = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          current_time_reminder = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
           default_mode_request_user_input = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          deferred_executor = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -166,15 +226,15 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          enable_mcp_apps = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           enable_request_compression = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           exec_permission_approvals = lib.mkOption {
-            type = lib.types.nullOr (lib.types.bool);
-            default = null;
-          };
-          experimental_use_freeform_apply_patch = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -186,15 +246,17 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
-          fast_mode = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
-          general_analytics = lib.mkOption {
+          external_migration = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          fast_mode = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          goals = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           guardian_approval = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          hooks = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           image_detail_original = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -203,23 +265,47 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
-          include_apply_patch_tool = lib.mkOption {
+          imagegenext = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          in_app_browser = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          item_ids = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           js_repl = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           js_repl_tools_only = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          local_thread_store_compression = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           memories = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           memory_tool = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          mentions_v2 = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           multi_agent = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          multi_agent_mode = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           multi_agent_v2 = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
+          network_proxy = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
+          non_prefixed_mcp_tool_names = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           personality = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          plugin_hooks = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          plugin_sharing = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           plugins = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           prevent_idle_sleep = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
@@ -229,11 +315,19 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          remote_compaction_v2 = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           remote_control = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           remote_models = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          remote_plugin = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -246,6 +340,14 @@
             default = null;
           };
           request_rule = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          resize_all_images = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          respect_system_proxy = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           responses_websockets = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -254,11 +356,19 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          rollout_budget = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
           runtime_metrics = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           search_tool = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          secret_auth_storage = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           shell_snapshot = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -276,20 +386,54 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          skill_search = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           sqlite = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          standalone_web_search = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           steer = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          telepathy = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          terminal_resize_reflow = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          terminal_visualization_instructions = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          token_budget = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
+            default = null;
+          };
           tool_call_mcp_elicitation = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           tool_search = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          tool_search_always_defer_mcp_tools = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           tool_suggest = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           tui_app_server = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          unavailable_dummy_tools = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           undo = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           unified_exec = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
+          unified_exec_zsh_fork = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          use_agent_identity = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           use_legacy_landlock = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -304,6 +448,14 @@
             default = null;
           };
           web_search_request = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          workspace_dependencies = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          workspace_owner_usage_nudge = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -323,9 +475,9 @@
       description = "Optional URI-based file opener. If set, citations to files in the model output will be hyperlinked using the specified URI scheme.";
     };
     forced_chatgpt_workspace_id = lib.mkOption {
-      type = lib.types.nullOr (lib.types.str);
+      type = lib.types.nullOr (lib.types.anything);
       default = null;
-      description = "When set, restricts ChatGPT login to a specific workspace identifier.";
+      description = "When set, restricts ChatGPT login to one or more workspace identifiers.";
     };
     forced_login_method = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
@@ -335,7 +487,7 @@
     ghost_snapshot = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
-      description = "Settings for ghost snapshots (used for undo).";
+      description = "Compatibility-only settings retained so legacy `ghost_snapshot` config still loads.";
     };
     hide_agent_reasoning = lib.mkOption {
       type = lib.types.nullOr (lib.types.bool);
@@ -347,10 +499,20 @@
       default = null;
       description = "Settings that govern if and what will be written to `~/.codex/history.jsonl`.";
     };
+    hooks = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Lifecycle hooks configured inline in TOML plus user-level overrides.";
+    };
     include_apps_instructions = lib.mkOption {
       type = lib.types.nullOr (lib.types.bool);
       default = null;
       description = "Whether to inject the `<apps_instructions>` developer block.";
+    };
+    include_collaboration_mode_instructions = lib.mkOption {
+      type = lib.types.nullOr (lib.types.bool);
+      default = null;
+      description = "Whether to inject the `<collaboration_mode>` developer block.";
     };
     include_environment_context = lib.mkOption {
       type = lib.types.nullOr (lib.types.bool);
@@ -367,20 +529,15 @@
       default = null;
       description = "System instructions.";
     };
-    js_repl_node_module_dirs = lib.mkOption {
-      type = lib.types.nullOr (lib.types.listOf (lib.types.anything));
-      default = null;
-      description = "Ordered list of directories to search for Node modules in `js_repl`.";
-    };
-    js_repl_node_path = lib.mkOption {
-      type = lib.types.nullOr (lib.types.anything);
-      default = null;
-      description = "Optional absolute path to the Node runtime used by `js_repl`.";
-    };
     log_dir = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
-      description = "Directory where Codex writes log files, for example `codex-tui.log`. Defaults to `$CODEX_HOME/log`.";
+      description = "Directory where Codex writes log files. Setting this value explicitly also enables the TUI text log in this directory. Defaults to `$CODEX_HOME/log`.";
+    };
+    marketplaces = lib.mkOption {
+      type = lib.types.nullOr (lib.types.attrsOf (lib.types.anything));
+      default = null;
+      description = "User-level marketplace entries keyed by marketplace name.";
     };
     mcp_oauth_callback_port = lib.mkOption {
       type = lib.types.nullOr (lib.types.int);
@@ -417,6 +574,11 @@
       default = null;
       description = "Token usage threshold triggering auto-compaction of conversation history.";
     };
+    model_auto_compact_token_limit_scope = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Controls whether the auto-compaction limit applies to the full context or only to tokens after the carried prefix in the current compaction window.";
+    };
     model_catalog_json = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
@@ -450,11 +612,6 @@
       type = lib.types.nullOr (lib.types.anything);
       default = null;
     };
-    model_supports_reasoning_summaries = lib.mkOption {
-      type = lib.types.nullOr (lib.types.bool);
-      default = null;
-      description = "Override to force-enable reasoning summaries for the configured model.";
-    };
     model_verbosity = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
@@ -474,6 +631,11 @@
       type = lib.types.nullOr (lib.types.str);
       default = null;
       description = "Base URL override for the built-in `openai` model provider.";
+    };
+    orchestrator = lib.mkOption {
+      type = lib.types.nullOr (lib.types.anything);
+      default = null;
+      description = "Orchestrator-owned feature settings.";
     };
     oss_provider = lib.mkOption {
       type = lib.types.nullOr (lib.types.str);
@@ -554,9 +716,9 @@
       description = "Sandbox configuration to apply if `sandbox` is `WorkspaceWrite`.";
     };
     service_tier = lib.mkOption {
-      type = lib.types.nullOr (lib.types.anything);
+      type = lib.types.nullOr (lib.types.str);
       default = null;
-      description = "Optional explicit service tier preference for new turns (`fast` or `flex`).";
+      description = "Optional explicit service tier request id for new turns (for example `default`, `priority`, or `flex`; legacy `fast` also works).";
     };
     shell_environment_policy = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
@@ -605,21 +767,11 @@
     web_search = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
-      description = "Controls the web search tool mode: disabled, cached, or live.";
+      description = "Controls the web search tool mode: disabled, cached, indexed, or live.";
     };
     windows = lib.mkOption {
       type = lib.types.nullOr (lib.types.anything);
       default = null;
       description = "Windows-specific configuration.";
-    };
-    windows_wsl_setup_acknowledged = lib.mkOption {
-      type = lib.types.nullOr (lib.types.bool);
-      default = null;
-      description = "Tracks whether the Windows onboarding screen has been acknowledged.";
-    };
-    zsh_path = lib.mkOption {
-      type = lib.types.nullOr (lib.types.anything);
-      default = null;
-      description = "Optional absolute path to patched zsh used by zsh-exec-bridge-backed shell execution.";
     };
   }

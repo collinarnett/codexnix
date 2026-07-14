@@ -5,6 +5,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     jsonschema2nix.url = "github:collinarnett/jsonschema2nix";
+    codex-src = {
+      url = "github:openai/codex";
+      flake = false;
+    };
   };
 
   outputs =
@@ -13,6 +17,7 @@
       nixpkgs,
       flake-parts,
       jsonschema2nix,
+      codex-src,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -28,7 +33,7 @@
       perSystem =
         { pkgs, system, ... }:
         let
-          schemaUrl = "https://raw.githubusercontent.com/openai/codex/main/codex-rs/core/config.schema.json";
+          schemaFile = codex-src + "/codex-rs/core/config.schema.json";
           j2n = jsonschema2nix.packages.${system}.default;
         in
         {
@@ -38,20 +43,23 @@
               let
                 script = pkgs.writeShellApplication {
                   name = "codexnix-generate";
-                  runtimeInputs = with pkgs; [
-                    curl
-                    j2n
-                  ];
+                  runtimeInputs = [ j2n pkgs.glibcLocales ];
                   text = ''
-                    curl -sL "${schemaUrl}" | jsonschema2nix --skip '$schema'
+                    export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+                    export LANG=C.UTF-8
+                    export LC_ALL=C.UTF-8
+                    jsonschema2nix --skip "\$schema" < ${schemaFile}
                   '';
                 };
               in
               "${script}/bin/codexnix-generate";
           };
 
-          checks.generated-up-to-date = pkgs.runCommand "check-generated" { nativeBuildInputs = [ pkgs.curl j2n ]; } ''
-            expected=$(curl -sL "${schemaUrl}" | jsonschema2nix --skip '$schema')
+          checks.generated-up-to-date = pkgs.runCommand "check-generated" { nativeBuildInputs = [ j2n pkgs.glibcLocales ]; } ''
+            export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+            export LANG=C.UTF-8
+            export LC_ALL=C.UTF-8
+            expected=$(jsonschema2nix --skip "\$schema" < ${schemaFile})
             diff <(echo "$expected") ${./generated/options.nix}
             touch $out
           '';
