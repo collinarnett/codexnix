@@ -6,7 +6,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     jsonschema2nix.url = "github:collinarnett/jsonschema2nix";
     codex-src = {
-      url = "github:openai/codex";
+      url = "github:openai/codex/rust-v0.146.0";
       flake = false;
     };
   };

@@ -178,8 +178,12 @@
             type = lib.types.nullOr (lib.types.anything);
             default = null;
           };
-          code_mode_host = lib.mkOption {
+          code_mode_buffered_exec = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          code_mode_host = lib.mkOption {
+            type = lib.types.nullOr (lib.types.anything);
             default = null;
           };
           code_mode_only = lib.mkOption {
@@ -214,6 +218,10 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          deferred_tool_world_state = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           elevated_windows_sandbox = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
@@ -238,11 +246,19 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          executor_capability_discovery = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           experimental_use_unified_exec_tool = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
           experimental_windows_sandbox = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          external_agent_memory_import = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -256,6 +272,7 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          guardianv2 = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           hooks = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           image_detail_original = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
@@ -270,6 +287,10 @@
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
+          in_app_updates = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
           item_ids = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           js_repl = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
           js_repl_tools_only = lib.mkOption {
@@ -277,6 +298,10 @@
             default = null;
           };
           local_thread_store_compression = lib.mkOption {
+            type = lib.types.nullOr (lib.types.bool);
+            default = null;
+          };
+          mcp_2026_07_28 = lib.mkOption {
             type = lib.types.nullOr (lib.types.bool);
             default = null;
           };
@@ -297,7 +322,7 @@
             default = null;
           };
           non_prefixed_mcp_tool_names = lib.mkOption {
-            type = lib.types.nullOr (lib.types.bool);
+            type = lib.types.nullOr (lib.types.anything);
             default = null;
           };
           personality = lib.mkOption { type = lib.types.nullOr (lib.types.bool); default = null; };
